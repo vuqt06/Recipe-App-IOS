@@ -10,7 +10,9 @@ import SwiftUI
 struct RecipeListView: View {
     
     // Reference the view model
-    @ObservedObject var model = RecipeModel()
+    // Old attempt: @ObservedObject var model = RecipeModel()
+    // New attempt:
+    @EnvironmentObject var model:RecipeModel
     
     var body: some View {
         NavigationView {
