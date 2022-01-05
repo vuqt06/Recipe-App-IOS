@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct RecipeDetailView: View {
+    @EnvironmentObject var model:RecipeModel
     var recipe:Recipe
     @State var selectedServingSize = 2
     var body: some View {
@@ -24,6 +25,16 @@ struct RecipeDetailView: View {
                     .padding(.leading)
                     .font(Font.custom("Avenir Heavy", size: 30))
                 
+                Button(action: {
+                    model.updateFavourite(forName: recipe.name)
+                }, label: {
+                    Image(systemName: recipe.isFavourite ? "star.fill" : "star")
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .foregroundColor(.yellow)
+                        .padding(.horizontal)
+                })
+                                
                 // MARK: Serving Size Picker
                 VStack(alignment: .leading) {
                     Text("Select your serving size:")

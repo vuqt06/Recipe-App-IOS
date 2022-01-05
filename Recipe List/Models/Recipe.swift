@@ -10,6 +10,8 @@ import Foundation
 class Recipe: Identifiable, Decodable {
     var id:UUID?
     var name:String
+    var category:String
+    var isFavourite:Bool = false
     var featured:Bool
     var image:String
     var description:String

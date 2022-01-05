@@ -9,6 +9,9 @@ import Foundation
 
 class RecipeModel: ObservableObject {
     @Published var recipes = [Recipe]()
+    @Published var categories = Set<String>()
+    @Published var selectedCategory:String?
+    @Published var favoriteRecipes = [Recipe]()
     
     static func getPortion(ingredient:Ingredient, recipeServings:Int, targetServings:Int) -> String {
         
@@ -75,10 +78,30 @@ class RecipeModel: ObservableObject {
         return portion
     }
     
+    func updateFavourite(forName: String) {
+        if let index = recipes.firstIndex(where: { $0.name == forName }) {
+            if !recipes[index].isFavourite {
+                recipes[index].isFavourite = true
+                favoriteRecipes.append(recipes[index])
+            }
+            else {
+                recipes[index].isFavourite = false
+                if let indexRemove = favoriteRecipes.firstIndex(where: { $0.name == forName }) {
+                    favoriteRecipes.remove(at: indexRemove)
+                }
+                    
+            }
+        }
+    }
+    
     init() {
         // Create an insteance of data service and get the data
         
-        self.recipes = DataService.getLocalData()
+        self.recipes = DataService.getLocalData().sorted{$0.name < $1.name}
         
+        self.categories = Set(self.recipes.map{ r in
+            return r.category
+        })
+        self.categories.update(with: Constants.defaultListing)
     }
 }

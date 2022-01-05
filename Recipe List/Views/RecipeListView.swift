@@ -23,18 +23,46 @@ struct RecipeListView: View {
     @EnvironmentObject var model:RecipeModel
     @State private var searchRecipe:String = ""
     @State var searching = false
+    private var title:String {
+        if (model.selectedCategory == nil || model.selectedCategory == Constants.defaultListing) {
+            return "All Recipes"
+        }
+        else {
+            return model.selectedCategory!
+        }
+    }
+    
+    
+    let alphabet = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W", "X","Y", "Z"]
+    init() {
+            UITabBar.appearance().barTintColor = UIColor.black
+        }
     var body: some View {
         NavigationView {
             
             VStack(alignment: .leading) {
-                /*
-                Text(searching ? "Searching" : "All Recipes")
+                
+                Text(searching ? "Searching" : title)
                     .bold()
                     .padding(.top, 40)
                     .font(Font.custom("Avenir Heavy", size: 30))
-                 */
                 
-                SearchBar(searchRecipe: $searchRecipe, searching: $searching)
+                HStack {
+                    SearchBar(searchRecipe: $searchRecipe, searching: $searching)
+                    if (model.selectedCategory != nil && model.selectedCategory != Constants.defaultListing) {
+                        Button {
+                            model.selectedCategory = nil
+                        } label: {
+                            Text("All recipes")
+                                .padding(.trailing)
+                                .font(Font.custom("Avenir Heavy", size: 12))
+                                .foregroundColor(.green)
+                        }
+                    }
+                    
+
+                }
+                
                 
                 ScrollView {
                     LazyVStack(alignment: .leading) {
@@ -42,28 +70,28 @@ struct RecipeListView: View {
                             return recipe.name.contains(searchRecipe) || searchRecipe == ""
                         })) {
                         r in
-                        NavigationLink(
-                            destination: RecipeDetailView(recipe: r),
-                            label: {
-                                HStack(spacing: 20.0) {
-                                    Image(r.image).resizable().scaledToFill().frame(width: 50, height: 50, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/).clipped().cornerRadius(5)
-                                    VStack(alignment: .leading) {
-                                        Text(r.name)
-                                            .font(Font.custom("Avenir Heavy", size: 16))
-                                        RecipeHighlights(highlights: r.highlights)
-                                    }.foregroundColor(.black)
-                                }
-                            })
+                            if (model.selectedCategory == nil || model.selectedCategory == Constants.defaultListing || (model.selectedCategory != nil && r.category == model.selectedCategory)) {
+                                NavigationLink(
+                                    destination: RecipeDetailView(recipe: r),
+                                    label: {
+                                        HStack(spacing: 20.0) {
+                                            Image(r.image).resizable().scaledToFill().frame(width: 50, height: 50, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/).clipped().cornerRadius(5)
+                                            VStack(alignment: .leading) {
+                                                Text(r.name)
+                                                    .font(Font.custom("Avenir Heavy", size: 14))
+                                                RecipeHighlights(highlights: r.highlights)
+                                            }.foregroundColor(.black)
+                                        }
+                                    })
+                            }
                         }
                         .gesture(DragGesture()
                                     .onChanged({ _ in
                             UIApplication.shared.dismissKeyboard()
-                        })
-                                 )
+                        }))
                     }.padding(.top)
-                    
                 }
-            }.navigationTitle(Text(searching ? "Searching" : "All Recipes"))
+            }.navigationBarHidden(true)
             .padding(.leading)
             .toolbar {
                 if searching {
@@ -115,6 +143,6 @@ struct SearchBar: View {
             .foregroundColor(.gray)
         }
         .frame(height: 40)
-        .padding([.trailing, .top])
+        .padding([.trailing])
     }
 }
